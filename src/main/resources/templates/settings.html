@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Account Settings | SkillBridge</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/app-theme.css}">
+    <style>
+        .module-page{max-width:760px;margin:0 auto;padding:32px}
+        .module-nav{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:28px}
+        .module-nav a{color:#365b50;font-weight:600;text-decoration:none}
+        .settings-form{display:grid;gap:12px;margin-top:24px}
+        .settings-form label{display:grid;gap:6px;font-weight:600}
+        .settings-form input,.settings-form textarea,.settings-form button{box-sizing:border-box;width:100%;padding:11px;border:1px solid #cbd5cf;border-radius:6px}
+        .settings-form textarea{min-height:100px}
+        .settings-form button{background:#285b4b;color:#fff;border:0;cursor:pointer}
+        .notice{padding:12px;background:#edf4ef;margin:12px 0}
+        .logout{margin-top:18px}
+    </style>
+</head>
+<body>
+<header th:replace="~{fragments/site-header :: siteHeader('account', true)}"></header>
+<main class="module-page">
+    <h1>Account Settings</h1>
+    <div class="notice" th:if="${success != null}" th:text="${success}"></div>
+    <div class="notice" th:if="${error != null}" th:text="${error}"></div>
+    <form class="settings-form" th:action="@{/settings}" method="post">
+        <label>Full name<input name="fullName" maxlength="120" th:value="${currentUser.fullName}" required></label>
+        <label>Email<input name="email" type="email" th:value="${currentUser.email}" required></label>
+        <label>About you<textarea name="bio" maxlength="500" th:text="${currentUser.bio}"></textarea></label>
+        <h2>Change password</h2>
+        <label>Current password<input name="currentPassword" type="password" autocomplete="current-password"></label>
+        <label>New password<input name="newPassword" type="password" minlength="8" autocomplete="new-password"></label>
+        <button type="submit">Save settings</button>
+    </form>
+    <form class="logout" th:action="@{/logout}" method="post">
+        <button type="submit">Log out</button>
+    </form>
+</main>
+</body>
+</html>

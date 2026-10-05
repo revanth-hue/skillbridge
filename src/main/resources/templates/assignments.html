@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Assignments | SkillBridge</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/app-theme.css}">
+    <style>
+        .module-page{max-width:1000px;margin:0 auto;padding:32px}
+        .module-nav{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:28px}
+        .module-nav a{color:#365b50;font-weight:600;text-decoration:none}
+        .module-form{display:grid;grid-template-columns:2fr 1fr;gap:12px;padding:20px 0;border-bottom:1px solid #dfe5e1}
+        .module-form input,.module-form textarea,.module-form button{box-sizing:border-box;padding:10px;border:1px solid #cbd5cf;border-radius:6px}
+        .module-form textarea{grid-column:1/-1;min-height:70px}
+        .module-form button{background:#285b4b;color:#fff;border:0;cursor:pointer}
+        .task{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid #dfe5e1}
+        .task form{display:inline-flex;gap:8px}
+        .notice{padding:12px;background:#edf4ef;margin:12px 0}
+        @media(max-width:600px){.module-form{grid-template-columns:1fr}.module-form textarea{grid-column:auto}.task{align-items:flex-start;flex-direction:column}}
+    </style>
+</head>
+<body>
+<header th:replace="~{fragments/site-header :: siteHeader('assignments', true)}"></header>
+<main class="module-page">
+    <h1>Assignments</h1>
+    <p>Keep track of the next steps in your learning.</p>
+    <div class="notice" th:if="${success != null}" th:text="${success}"></div>
+    <div class="notice" th:if="${error != null}" th:text="${error}"></div>
+    <form class="module-form" th:action="@{/assignments/add}" method="post">
+        <input name="title" maxlength="160" placeholder="What will you work on?" required>
+        <input name="dueDate" type="date">
+        <textarea name="details" maxlength="1000" placeholder="Notes"></textarea>
+        <button type="submit">Add assignment</button>
+    </form>
+    <article class="task" th:each="assignment : ${assignments}">
+        <div>
+            <h2 th:text="${assignment.title}">Assignment</h2>
+            <p th:if="${assignment.details != null}" th:text="${assignment.details}">Details</p>
+            <p th:if="${assignment.dueDate != null}" th:text="${#temporals.format(assignment.dueDate, 'MMM d, yyyy')}">Due date</p>
+            <strong th:text="${assignment.completed ? 'Completed' : 'In progress'}">In progress</strong>
+        </div>
+        <div>
+            <form th:action="@{/assignments/toggle}" method="post">
+                <input type="hidden" name="assignmentId" th:value="${assignment.id}">
+                <input type="hidden" name="completed" th:value="${!assignment.completed}">
+                <button type="submit" th:text="${assignment.completed ? 'Reopen' : 'Complete'}">Complete</button>
+            </form>
+            <form th:action="@{/assignments/delete}" method="post">
+                <input type="hidden" name="assignmentId" th:value="${assignment.id}">
+                <button type="submit">Delete</button>
+            </form>
+        </div>
+    </article>
+    <p th:if="${assignments.isEmpty()}">Your learning tasks will appear here.</p>
+</main>
+</body>
+</html>

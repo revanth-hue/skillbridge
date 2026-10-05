@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Skills | SkillBridge</title>
+
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+
+    <style>
+
+        .skills-page {
+            padding: 30px;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #5b53d6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .skills-header {
+            margin-bottom: 30px;
+        }
+
+        .skills-header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .skills-header p {
+            color: #777;
+            margin-top: 8px;
+        }
+
+        .skills-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .skills-card {
+            background: #ffffff;
+            border: 1px solid #e7e5e1;
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .skills-card h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        .skills-card-description {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .skill-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid #eeeeeb;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .skill-item:hover {
+            background: #f8f7ff;
+            border-color: #dcd9ff;
+        }
+
+        .skill-item input {
+            width: 17px;
+            height: 17px;
+            accent-color: #5b53d6;
+        }
+
+        .skill-name {
+            font-weight: 600;
+        }
+
+        .skill-category {
+            color: #888;
+            font-size: 13px;
+            margin-left: auto;
+        }
+
+        .save-section {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .save-button {
+            border: none;
+            background: #5b53d6;
+            color: white;
+            padding: 13px 24px;
+            border-radius: 9px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .save-button:hover {
+            background: #4942bd;
+        }
+
+        .user-info {
+            background: #eeecff;
+            border-radius: 12px;
+            padding: 15px 18px;
+            margin-bottom: 25px;
+            color: #4039a5;
+        }
+
+        .error-message {
+            background: #fff0f0;
+            color: #c0392b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 750px) {
+
+            .skills-container {
+                grid-template-columns: 1fr;
+            }
+
+            .skill-category {
+                display: none;
+            }
+        }
+
+    </style>
+    <link rel="stylesheet" th:href="@{/css/app-theme.css}">
+
+</head>
+
+<body>
+
+<header th:replace="~{fragments/site-header :: siteHeader('skills', true)}"></header>
+
+<div class="skills-page">
+
+    <div class="skills-header">
+
+        <h1>My Skills</h1>
+
+        <p>
+            Tell SkillBridge what you can teach and what you want to learn.
+        </p>
+
+    </div>
+
+
+    <!-- User Information -->
+
+    <div
+        th:if="${user != null}"
+        class="user-info">
+
+        <strong th:text="${user.fullName}">
+            User Name
+        </strong>
+
+        <span>
+            — Manage your teaching and learning skills
+        </span>
+
+    </div>
+
+
+    <!-- Error -->
+
+    <div
+        th:if="${error != null}"
+        class="error-message"
+        th:text="${error}">
+        User not found.
+    </div>
+
+
+    <!-- Skills Form -->
+
+    <form
+        th:if="${user != null}"
+        th:action="@{/my-skills/save}"
+        method="post">
+
+        <div class="skills-container">
+
+
+            <!-- Skills To Teach -->
+
+            <div class="skills-card">
+
+                <h2>🎓 Skills I Can Teach</h2>
+
+                <p class="skills-card-description">
+                    Select the skills you are confident enough
+                    to teach other people.
+                </p>
+
+
+                <label
+                    class="skill-item"
+                    th:each="skill : ${skills}">
+
+                    <input
+                        type="checkbox"
+                        name="teachingSkills"
+                        th:value="${skill.id}"
+                        th:checked="${user.skillsToTeach.contains(skill)}">
+
+                    <span
+                        class="skill-name"
+                        th:text="${skill.name}">
+                        Java
+                    </span>
+
+                    <span
+                        class="skill-category"
+                        th:text="${skill.category}">
+                        Programming
+                    </span>
+
+                </label>
+
+            </div>
+
+
+            <!-- Skills To Learn -->
+
+            <div class="skills-card">
+
+                <h2>📚 Skills I Want To Learn</h2>
+
+                <p class="skills-card-description">
+                    Select the skills you want to learn
+                    from other people.
+                </p>
+
+
+                <label
+                    class="skill-item"
+                    th:each="skill : ${skills}">
+
+                    <input
+                        type="checkbox"
+                        name="learningSkills"
+                        th:value="${skill.id}"
+                        th:checked="${user.skillsToLearn.contains(skill)}">
+
+                    <span
+                        class="skill-name"
+                        th:text="${skill.name}">
+                        Java
+                    </span>
+
+                    <span
+                        class="skill-category"
+                        th:text="${skill.category}">
+                        Programming
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+
+        <div class="save-section">
+
+            <button
+                type="submit"
+                class="save-button">
+
+                Save My Skills
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>SkillBridge - Dashboard</title>
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/app-theme.css}">
+
+</head>
+
+<body>
+
+<header th:replace="~{fragments/site-header :: siteHeader(${activeModule}, true)}"></header>
+
+<div class="dashboard">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo-area">
+
+            <a href="/" class="logo">
+                Skill<span>Bridge</span>
+            </a>
+
+        </div>
+
+        <nav class="nav">
+
+            <a href="/dashboard"
+               class="nav-item active">
+
+                <span class="nav-icon">▱</span>
+                <span>Skill Marketplace</span>
+
+            </a>
+
+            <a href="/skill-matching" class="nav-item">
+
+                <span class="nav-icon">✦</span>
+                <span>Skill Matching</span>
+
+            </a>
+
+            <a href="/mentors" class="nav-item">
+
+                <span class="nav-icon">♧</span>
+                <span>Mentor Directory</span>
+
+            </a>
+
+            <a href="/sessions" class="nav-item">
+
+                <span class="nav-icon">□</span>
+                <span>Learning Sessions</span>
+
+            </a>
+
+            <a href="/resources" class="nav-item">
+
+                <span class="nav-icon">▤</span>
+                <span>Learning Resources</span>
+
+            </a>
+
+            <a href="/assignments" class="nav-item">
+
+                <span class="nav-icon">☷</span>
+                <span>Assignments</span>
+
+            </a>
+
+            <a href="/requests" class="nav-item">
+
+                <span class="nav-icon">▢</span>
+                <span>Requests</span>
+
+            </a>
+
+            <a href="/progress" class="nav-item">
+
+                <span class="nav-icon">↗</span>
+                <span>Progress Tracker</span>
+
+            </a>
+
+            <a href="/settings" class="nav-item">
+
+                <span class="nav-icon">⚙</span>
+                <span>Settings</span>
+
+            </a>
+
+        </nav>
+
+        <!-- USER -->
+
+        <div class="sidebar-profile">
+
+            <div class="profile-avatar">
+                <span th:text="${#strings.substring(currentUser.fullName, 0, 1)}">U</span>
+            </div>
+
+            <div>
+
+                <div class="profile-name">
+                    <span th:text="${currentUser.fullName}">User</span>
+                </div>
+
+                <div class="profile-level">
+                    SkillBridge Member
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+        <!-- TOP BAR -->
+
+        <header class="topbar" th:if="${false}">
+
+            <div class="topbar-icon">
+                ☼
+            </div>
+
+            <div class="topbar-icon notification">
+
+                ♧
+
+                <span class="notification-dot">
+                    1
+                </span>
+
+            </div>
+
+            <div class="profile-avatar">
+                <span th:text="${#strings.substring(currentUser.fullName, 0, 1)}">U</span>
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+
+        <section class="content">
+
+            <div class="page-heading">
+
+                <h1 th:text="${pageTitle}">Skill Marketplace</h1>
+
+                <p>
+                    Discover skills, connect with people, and build your collaborative learning network.
+                </p>
+
+            </div>
+
+
+            <!-- SEARCH -->
+
+            <form class="search-area" th:action="${searchPath}" method="get">
+
+                <div class="search-box">
+
+                    <span>⌕</span>
+
+                    <input
+                        type="text"
+                        name="q"
+                        th:value="${query}"
+                        placeholder="Search skills or mentors...">
+
+                </div>
+
+                <button class="learn-btn" type="submit">
+                    Search
+                </button>
+
+            </form>
+
+
+            <!-- SKILL MARKETPLACE -->
+
+            <div class="section-header">
+
+                <h2 th:text="${sectionTitle}">Explore skills</h2>
+
+                <a th:href="${viewAllPath}" class="view-all">
+                    <span th:text="${activeModule == 'mentors' ? 'Marketplace' : 'View all mentors'}">View all mentors</span>
+                </a>
+
+            </div>
+
+            <div class="skill-grid">
+                <article class="skill-card" th:each="mentor : ${mentors}">
+                    <div class="skill-top">
+                        <span class="category">SKILL EXCHANGE</span>
+                    </div>
+                    <h3 th:text="${mentor.fullName}">Mentor name</h3>
+                    <p class="description" th:text="${mentor.bio != null and !mentor.bio.isBlank() ? mentor.bio : 'Available to share practical experience.'}">
+                        Mentor biography
+                    </p>
+                    <div class="mentor-info">
+                        <strong>Can teach</strong>
+                        <span th:each="skill : ${mentor.skillsToTeach}"
+                              th:text="${skill.name}">Skill name</span>
+                    </div>
+                    <form th:action="@{/requests/send}" method="post">
+                        <input type="hidden" name="receiverId" th:value="${mentor.id}">
+                        <input type="text" name="message" placeholder="Add a short message">
+                        <button class="learn-btn" type="submit">Request an exchange</button>
+                    </form>
+                </article>
+            </div>
+
+            <p th:if="${mentors.isEmpty()}" class="description">
+                No mentors match this search yet. Add teaching skills to your profile to help others find you.
+            </p>
+
+
+            <div class="skill-grid" th:if="${false}">
+
+
+                <!-- CARD 1 -->
+
+                <article class="skill-card">
+
+                    <div class="skill-top">
+
+                        <span class="category">
+                            PROGRAMMING
+                        </span>
+
+                        <span class="rating">
+                            ★ 5.0
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Java Development
+                    </h3>
+
+                    <div class="mentor">
+
+                        <div class="mentor-avatar">
+                            JM
+                        </div>
+
+                        <div class="mentor-info">
+
+                            <strong>
+                                James Martinez
+                            </strong>
+
+                            <span>
+                                Mentor · 4 years
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <p class="description">
+
+                        Learn Java fundamentals, object-oriented programming,
+                        and practical application development.
+
+                    </p>
+
+                    <div class="card-bottom">
+
+                        <span class="session-info">
+                            8 sessions
+                        </span>
+
+                        <button class="learn-btn">
+                            View Skill
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!-- CARD 2 -->
+
+                <article class="skill-card">
+
+                    <div class="skill-top">
+
+                        <span class="category">
+                            WEB DEVELOPMENT
+                        </span>
+
+                        <span class="rating">
+                            ★ 4.9
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        TypeScript
+                    </h3>
+
+                    <div class="mentor">
+
+                        <div class="mentor-avatar">
+                            AL
+                        </div>
+
+                        <div class="mentor-info">
+
+                            <strong>
+                                Abigail Lee
+                            </strong>
+
+                            <span>
+                                Mentor · 8 years
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <p class="description">
+
+                        Learn TypeScript from fundamentals to advanced
+                        concepts through practical projects.
+
+                    </p>
+
+                    <div class="card-bottom">
+
+                        <span class="session-info">
+                            12 sessions
+                        </span>
+
+                        <button class="learn-btn">
+                            View Skill
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!-- CARD 3 -->
+
+                <article class="skill-card">
+
+                    <div class="skill-top">
+
+                        <span class="category">
+                            DESIGN
+                        </span>
+
+                        <span class="rating">
+                            ★ 5.0
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        UI/UX Design
+                    </h3>
+
+                    <div class="mentor">
+
+                        <div class="mentor-avatar">
+                            SK
+                        </div>
+
+                        <div class="mentor-info">
+
+                            <strong>
+                                Sarah Kim
+                            </strong>
+
+                            <span>
+                                Mentor · 6 years
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <p class="description">
+
+                        Explore user research, wireframing, prototyping,
+                        and modern interface design.
+
+                    </p>
+
+                    <div class="card-bottom">
+
+                        <span class="session-info">
+                            10 sessions
+                        </span>
+
+                        <button class="learn-btn">
+                            View Skill
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!-- CARD 4 -->
+
+                <article class="skill-card">
+
+                    <div class="skill-top">
+
+                        <span class="category">
+                            DATA
+                        </span>
+
+                        <span class="rating">
+                            ★ 4.8
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Data Analytics
+                    </h3>
+
+                    <div class="mentor">
+
+                        <div class="mentor-avatar">
+                            RK
+                        </div>
+
+                        <div class="mentor-info">
+
+                            <strong>
+                                Rahul Kumar
+                            </strong>
+
+                            <span>
+                                Mentor · 5 years
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <p class="description">
+
+                        Learn how to analyze data, create dashboards,
+                        and turn information into useful insights.
+
+                    </p>
+
+                    <div class="card-bottom">
+
+                        <span class="session-info">
+                            7 sessions
+                        </span>
+
+                        <button class="learn-btn">
+                            View Skill
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!-- CARD 5 -->
+
+                <article class="skill-card">
+
+                    <div class="skill-top">
+
+                        <span class="category">
+                            MARKETING
+                        </span>
+
+                        <span class="rating">
+                            ★ 4.9
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Digital Marketing
+                    </h3>
+
+                    <div class="mentor">
+
+                        <div class="mentor-avatar">
+                            EM
+                        </div>
+
+                        <div class="mentor-info">
+
+                            <strong>
+                                Emma Miller
+                            </strong>
+
+                            <span>
+                                Mentor · 7 years
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <p class="description">
+
+                        Learn content strategy, social media marketing,
+                        SEO, and practical digital campaigns.
+
+                    </p>
+
+                    <div class="card-bottom">
+
+                        <span class="session-info">
+                            9 sessions
+                        </span>
+
+                        <button class="learn-btn">
+                            View Skill
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!-- CARD 6 -->
+
+                <article class="skill-card">
+
+                    <div class="skill-top">
+
+                        <span class="category">
+                            LANGUAGE
+                        </span>
+
+                        <span class="rating">
+                            ★ 4.8
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        English Speaking
+                    </h3>
+
+                    <div class="mentor">
+
+                        <div class="mentor-avatar">
+                            DL
+                        </div>
+
+                        <div class="mentor-info">
+
+                            <strong>
+                                David Lee
+                            </strong>
+
+                            <span>
+                                Mentor · 5 years
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <p class="description">
+
+                        Improve communication, vocabulary, confidence,
+                        and everyday English speaking skills.
+
+                    </p>
+
+                    <div class="card-bottom">
+
+                        <span class="session-info">
+                            15 sessions
+                        </span>
+
+                        <button class="learn-btn">
+                            View Skill
+                        </button>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

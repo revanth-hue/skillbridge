@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Learning Sessions | SkillBridge</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/app-theme.css}">
+    <style>
+        .module-page{max-width:1000px;margin:0 auto;padding:32px}
+        .module-nav{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:28px}
+        .module-nav a{color:#365b50;font-weight:600;text-decoration:none}
+        .module-card{background:#fff;border:1px solid #e1e7e3;border-radius:8px;padding:20px;margin:14px 0}
+        .module-card form{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+        .module-card input,.module-card button{padding:10px;border:1px solid #cbd5cf;border-radius:6px}
+        .module-card button{background:#285b4b;color:#fff;border:0;cursor:pointer}
+        .notice{padding:12px;background:#edf4ef;margin:12px 0}
+    </style>
+</head>
+<body>
+<header th:replace="~{fragments/site-header :: siteHeader('sessions', true)}"></header>
+<main class="module-page">
+    <h1>Learning Sessions</h1>
+    <p>Mentors schedule accepted exchanges as online classes. Learners join from their session list.</p>
+    <div class="notice" th:if="${success != null}" th:text="${success}"></div>
+    <div class="notice" th:if="${error != null}" th:text="${error}"></div>
+    <article class="module-card" th:each="exchange : ${sessions}">
+        <h2 th:text="${exchange.sender.id == currentUser.id ? exchange.receiver.fullName : exchange.sender.fullName}">Mentor name</h2>
+        <p><strong>Mentor:</strong> <span th:text="${exchange.receiver.fullName}">Mentor name</span>
+            <span aria-hidden="true"> · </span>
+            <strong>Learner:</strong> <span th:text="${exchange.sender.fullName}">Learner name</span>
+        </p>
+        <p>Status: <strong th:class="${'status status-' + #strings.toLowerCase(exchange.status)}" th:text="${exchange.status}">ACCEPTED</strong></p>
+        <p th:if="${exchange.scheduledAt != null}" th:text="${#temporals.format(exchange.scheduledAt, 'MMM d, yyyy HH:mm')}">Scheduled time</p>
+        <a th:if="${exchange.googleMeetUrl != null}" class="session-join-link"
+           th:href="${exchange.googleMeetUrl}" target="_blank" rel="noopener noreferrer">Join Google Meet</a>
+        <form th:if="${(exchange.status == 'ACCEPTED' or exchange.status == 'SCHEDULED') and exchange.receiver.id == currentUser.id}"
+              th:action="@{/sessions/schedule}" method="post">
+            <input type="hidden" name="requestId" th:value="${exchange.id}">
+            <label>Class time <input type="datetime-local" name="scheduledAt" required></label>
+            <label>Google Meet URL <input type="url" name="googleMeetUrl" pattern="https://meet\.google\.com/.*"
+                                          placeholder="https://meet.google.com/abc-defg-hij" required></label>
+            <button type="submit" th:text="${exchange.status == 'SCHEDULED' ? 'Update class' : 'Schedule online class'}">Schedule online class</button>
+        </form>
+        <p th:if="${exchange.status == 'ACCEPTED' and exchange.receiver.id != currentUser.id}">Waiting for the mentor to schedule this class.</p>
+        <form th:if="${exchange.status == 'SCHEDULED'}" th:action="@{/sessions/complete}" method="post">
+            <input type="hidden" name="requestId" th:value="${exchange.id}">
+            <button type="submit">Mark complete</button>
+        </form>
+    </article>
+    <p th:if="${sessions.isEmpty()}">Accepted skill exchanges will appear here.</p>
+</main>
+</body>
+</html>

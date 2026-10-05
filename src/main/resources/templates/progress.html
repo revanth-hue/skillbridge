@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Progress | SkillBridge</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/app-theme.css}">
+    <style>
+        .module-page{max-width:900px;margin:0 auto;padding:32px}
+        .module-nav{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:28px}
+        .module-nav a{color:#365b50;font-weight:600;text-decoration:none}
+        .progress-line{width:100%;height:18px;accent-color:#285b4b}
+        .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:28px}
+        .stat{padding:20px 0;border-top:2px solid #285b4b}
+        .stat strong{display:block;font-size:28px}
+        @media(max-width:560px){.stats{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<header th:replace="~{fragments/site-header :: siteHeader('progress', true)}"></header>
+<main class="module-page">
+    <h1>Learning Progress</h1>
+    <p>Your completion rate across recorded sessions and assignments.</p>
+    <progress class="progress-line" max="100" th:value="${completionRate}">0%</progress>
+    <p><strong th:text="${completionRate + '%'}">0%</strong> completed</p>
+    <div class="stats">
+        <div class="stat"><strong th:text="${completedSessions}">0</strong><span>Sessions completed</span></div>
+        <div class="stat"><strong th:text="${activeSessions}">0</strong><span>Sessions underway</span></div>
+        <div class="stat"><strong th:text="${completedAssignments}">0</strong><span>Assignments completed</span></div>
+        <div class="stat"><strong th:text="${openAssignments}">0</strong><span>Assignments remaining</span></div>
+    </div>
+</main>
+</body>
+</html>

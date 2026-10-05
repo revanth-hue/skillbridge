@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Requests | SkillBridge</title>
+
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+
+    <style>
+
+        .requests-page {
+            padding: 30px;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #5b53d6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .requests-header {
+            margin-bottom: 30px;
+        }
+
+        .requests-header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .requests-header p {
+            color: #777;
+            margin-top: 8px;
+        }
+
+        .user-info {
+            background: #eeecff;
+            border-radius: 12px;
+            padding: 15px 18px;
+            margin-bottom: 25px;
+            color: #4039a5;
+        }
+
+        .section {
+            margin-bottom: 35px;
+        }
+
+        .section h2 {
+            font-size: 21px;
+            margin-bottom: 15px;
+        }
+
+        .request-card {
+            background: #ffffff;
+            border: 1px solid #e7e5e1;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 14px;
+        }
+
+        .request-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .request-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .request-email {
+            color: #888;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .request-message {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f7f7f5;
+            border-radius: 9px;
+            color: #555;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-pending {
+            background: #fff4d8;
+            color: #9a6b00;
+        }
+
+        .status-accepted {
+            background: #e7f7ed;
+            color: #287a45;
+        }
+
+        .status-rejected {
+            background: #ffeaea;
+            color: #b23b3b;
+        }
+
+        .request-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-button {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 17px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .accept-button {
+            background: #5b53d6;
+            color: white;
+        }
+
+        .accept-button:hover {
+            background: #4942bd;
+        }
+
+        .reject-button {
+            background: #f1f0ee;
+            color: #555;
+        }
+
+        .reject-button:hover {
+            background: #e6e4e1;
+        }
+
+        .empty-message {
+            background: #ffffff;
+            border: 1px solid #e7e5e1;
+            border-radius: 14px;
+            padding: 25px;
+            color: #777;
+            text-align: center;
+        }
+
+        .error-message {
+            background: #fff0f0;
+            color: #c0392b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 650px) {
+
+            .request-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .request-actions {
+                flex-direction: column;
+            }
+
+            .action-button {
+                width: 100%;
+            }
+        }
+
+    </style>
+    <link rel="stylesheet" th:href="@{/css/app-theme.css}">
+
+</head>
+
+<body>
+
+<header th:replace="~{fragments/site-header :: siteHeader('requests', true)}"></header>
+
+<div class="requests-page">
+
+    <div class="requests-header">
+
+        <h1>Requests</h1>
+
+        <p>
+            Manage your skill exchange requests.
+        </p>
+
+    </div>
+
+
+    <!-- USER INFORMATION -->
+
+    <div
+        th:if="${user != null}"
+        class="user-info">
+
+        Logged in as:
+
+        <strong th:text="${user.fullName}">
+            User Name
+        </strong>
+
+    </div>
+
+
+    <!-- ERROR -->
+
+    <div
+        th:if="${error != null}"
+        class="error-message"
+        th:text="${error}">
+
+        User not found.
+
+    </div>
+
+    <div th:if="${success != null}" class="user-info" th:text="${success}"></div>
+
+
+    <!-- RECEIVED REQUESTS -->
+
+    <div
+        th:if="${user != null}"
+        class="section">
+
+        <h2>
+            📥 Received Requests
+        </h2>
+
+
+        <div
+            th:if="${receivedRequests != null and !receivedRequests.isEmpty()}">
+
+            <div
+                class="request-card"
+                th:each="request : ${receivedRequests}">
+
+                <div class="request-top">
+
+                    <div>
+
+                        <p
+                            class="request-name"
+                            th:text="${request.sender.fullName}">
+
+                            User Name
+
+                        </p>
+
+                        <p
+                            class="request-email"
+                            th:text="${request.sender.email}">
+
+                            user@email.com
+
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        class="status"
+                        th:classappend="${request.status == 'PENDING'
+                            ? ' status-pending'
+                            : request.status == 'ACCEPTED'
+                            ? ' status-accepted'
+                            : ' status-rejected'}"
+                        th:text="${request.status}">
+
+                        PENDING
+
+                    </span>
+
+                </div>
+
+
+                <div
+                    th:if="${request.message != null and !request.message.isEmpty()}"
+                    class="request-message">
+
+                    <strong>Message:</strong>
+
+                    <span th:text="${request.message}">
+                        I would like to exchange skills with you.
+                    </span>
+
+                </div>
+
+
+                <!-- ACCEPT / REJECT -->
+
+                <div
+                    th:if="${request.status == 'PENDING'}"
+                    class="request-actions">
+
+                    <form
+                        th:action="@{/requests/accept}"
+                        method="post">
+
+                        <input
+                            type="hidden"
+                            name="requestId"
+                            th:value="${request.id}">
+
+                        <button
+                            type="submit"
+                            class="action-button accept-button">
+
+                            Accept
+
+                        </button>
+
+                    </form>
+
+
+                    <form
+                        th:action="@{/requests/reject}"
+                        method="post">
+
+                        <input
+                            type="hidden"
+                            name="requestId"
+                            th:value="${request.id}">
+
+                        <button
+                            type="submit"
+                            class="action-button reject-button">
+
+                            Reject
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            th:if="${receivedRequests == null or receivedRequests.isEmpty()}"
+            class="empty-message">
+
+            No received requests yet.
+
+        </div>
+
+    </div>
+
+
+    <!-- SENT REQUESTS -->
+
+    <div
+        th:if="${user != null}"
+        class="section">
+
+        <h2>
+            📤 Sent Requests
+        </h2>
+
+
+        <div
+            th:if="${sentRequests != null and !sentRequests.isEmpty()}">
+
+            <div
+                class="request-card"
+                th:each="request : ${sentRequests}">
+
+                <div class="request-top">
+
+                    <div>
+
+                        <p
+                            class="request-name"
+                            th:text="${request.receiver.fullName}">
+
+                            User Name
+
+                        </p>
+
+                        <p
+                            class="request-email"
+                            th:text="${request.receiver.email}">
+
+                            user@email.com
+
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        class="status"
+                        th:classappend="${request.status == 'PENDING'
+                            ? ' status-pending'
+                            : request.status == 'ACCEPTED'
+                            ? ' status-accepted'
+                            : ' status-rejected'}"
+                        th:text="${request.status}">
+
+                        PENDING
+
+                    </span>
+
+                </div>
+
+
+                <div
+                    th:if="${request.message != null and !request.message.isEmpty()}"
+                    class="request-message">
+
+                    <strong>Message:</strong>
+
+                    <span th:text="${request.message}">
+                        I would like to exchange skills with you.
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            th:if="${sentRequests == null or sentRequests.isEmpty()}"
+            class="empty-message">
+
+            No sent requests yet.
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

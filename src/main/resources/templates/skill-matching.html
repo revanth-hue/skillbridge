@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Skill Matching | SkillBridge</title>
+
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+
+    <style>
+        .matching-page {
+            padding: 30px;
+        }
+
+        .matching-header {
+            margin-bottom: 25px;
+        }
+
+        .matching-header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .matching-header p {
+            color: #777;
+            margin-top: 8px;
+        }
+
+        .user-selector {
+            background: #ffffff;
+            border: 1px solid #e7e5e1;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .user-selector label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .user-selector input {
+            width: 220px;
+            padding: 11px 13px;
+            border: 1px solid #d8d6d2;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .match-button {
+            padding: 11px 18px;
+            margin-left: 8px;
+            border: none;
+            border-radius: 8px;
+            background: #5b53d6;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .match-button:hover {
+            background: #4942bd;
+        }
+
+        .match-card {
+            background: #ffffff;
+            border: 1px solid #e7e5e1;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 15px;
+        }
+
+        .match-card h3 {
+            margin: 0 0 8px;
+        }
+
+        .match-card p {
+            color: #777;
+            margin: 6px 0;
+        }
+
+        .match-badge {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #eeecff;
+            color: #5149c7;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .empty-message {
+            background: #ffffff;
+            border: 1px solid #e7e5e1;
+            border-radius: 14px;
+            padding: 30px;
+            text-align: center;
+            color: #777;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #5b53d6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/app-theme.css}">
+</head>
+
+<body>
+
+<header th:replace="~{fragments/site-header :: siteHeader('matching', true)}"></header>
+
+<div class="matching-page">
+
+    <div class="matching-header">
+        <p class="matching-eyebrow">PEER-TO-PEER LEARNING</p>
+        <h1>Find your next learning partner</h1>
+        <p>
+            Find people who can teach what you want to learn
+            and learn what you can teach.
+        </p>
+    </div>
+
+    <!-- Current User -->
+    <div th:if="${currentUser != null}" class="user-selector">
+
+        <div class="matching-member-label">Matching for <strong th:text="${currentUser.fullName}">Member name</strong></div>
+        <div class="matching-member-skills">
+            <span class="matching-list-label">You want to learn</span>
+            <span class="matching-skill-chip" th:each="skill : ${currentUser.skillsToLearn}" th:text="${skill.name}">Skill</span>
+            <span class="matching-list-empty" th:if="${currentUser.skillsToLearn.isEmpty()}">Choose learning skills in My skills to improve your matches.</span>
+        </div>
+
+    </div>
+
+    <div th:if="${success != null}" class="empty-message" th:text="${success}"></div>
+    <div th:if="${error != null}" class="empty-message" th:text="${error}"></div>
+
+
+    <!-- Match Results -->
+
+    <div th:if="${matches != null and !matches.isEmpty()}">
+
+        <div class="matching-header">
+            <h2>Your mutual matches</h2>
+            <p>
+                These users have compatible teaching and learning skills.
+            </p>
+        </div>
+
+
+        <div
+            class="match-card matching-result"
+            th:each="match : ${matches}">
+
+            <div class="matching-person">
+                <span class="matching-avatar" th:text="${#strings.substring(match.fullName, 0, 1)}">M</span>
+                <div>
+                    <h3 th:text="${match.fullName}">Member name</h3>
+                    <p th:if="${match.bio != null and !match.bio.isBlank()}" th:text="${match.bio}">Member biography</p>
+                </div>
+            </div>
+
+            <div class="matching-skill-columns">
+                <section>
+                    <span class="matching-list-label">Can teach</span>
+                    <span class="matching-skill-chip" th:each="skill : ${match.skillsToTeach}" th:text="${skill.name}">Skill</span>
+                </section>
+                <section>
+                    <span class="matching-list-label">Wants to learn</span>
+                    <span class="matching-skill-chip matching-skill-chip--learn" th:each="skill : ${match.skillsToLearn}" th:text="${skill.name}">Skill</span>
+                </section>
+            </div>
+
+            <form class="matching-request-form" th:action="@{/requests/send}" method="post">
+                <input type="hidden" name="receiverId" th:value="${match.id}">
+                <input type="text" name="message" maxlength="500" placeholder="Add a short message (optional)">
+                <button type="submit">Send exchange request</button>
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- Empty / Information Message -->
+
+    <div
+        th:if="${message != null}"
+        class="empty-message">
+
+        <p th:text="${message}">
+            No matches found.
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+</html>

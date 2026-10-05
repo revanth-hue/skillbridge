@@ -1,0 +1,35 @@
+<header class="app-header" th:fragment="siteHeader(active, authenticated)">
+    <div class="app-header-inner">
+        <a class="app-brand" th:href="${authenticated ? '/dashboard' : '/'}">
+            Skill<span>Bridge</span>
+        </a>
+
+        <nav class="app-nav" th:if="${authenticated}" aria-label="Main navigation">
+            <a href="/dashboard" th:classappend="${active == 'marketplace'} ? ' is-active' : ''">Marketplace</a>
+            <a href="/skill-matching" th:classappend="${active == 'matching'} ? ' is-active' : ''">Matches</a>
+            <a href="/mentors" th:classappend="${active == 'mentors'} ? ' is-active' : ''">Mentors</a>
+            <a href="/community" th:classappend="${active == 'community'} ? ' is-active' : ''">Community</a>
+            <a href="/sessions" th:classappend="${active == 'sessions'} ? ' is-active' : ''">Sessions</a>
+            <a href="/resources" th:classappend="${active == 'resources'} ? ' is-active' : ''">Resources</a>
+            <a href="/assignments" th:classappend="${active == 'assignments'} ? ' is-active' : ''">Tasks</a>
+            <a href="/requests" th:classappend="${active == 'requests'} ? ' is-active' : ''">Requests</a>
+            <a href="/progress" th:classappend="${active == 'progress'} ? ' is-active' : ''">Progress</a>
+            <a href="/my-skills" th:classappend="${active == 'skills'} ? ' is-active' : ''">My skills</a>
+        </nav>
+
+        <nav class="app-nav app-public-nav" th:unless="${authenticated}" aria-label="Main navigation">
+            <a href="/#features">How it works</a>
+        </nav>
+
+        <div class="app-actions" th:if="${authenticated}">
+            <a class="app-account-link" href="/settings">Account</a>
+            <form th:action="@{/logout}" method="post">
+                <button class="app-logout" type="submit" aria-label="Log out" title="Log out">↗</button>
+            </form>
+        </div>
+        <div class="app-actions" th:unless="${authenticated}">
+            <a class="app-account-link" href="/login">Log in</a>
+            <a class="app-join-link" href="/register">Join</a>
+        </div>
+    </div>
+</header>

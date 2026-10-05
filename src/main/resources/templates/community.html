@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Skill Communities | SkillBridge</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/app-theme.css}">
+</head>
+<body>
+<header th:replace="~{fragments/site-header :: siteHeader('community', true)}"></header>
+<main class="module-page community-page">
+    <p class="community-eyebrow">SHARE WHAT MATTERS</p>
+    <h1 th:if="${selectedSkill == null}">Skill communities</h1>
+    <h1 th:if="${selectedSkill != null}" th:text="${selectedSkill.name} + ' community'">Skill community</h1>
+    <p th:if="${selectedSkill == null}">Choose a skill to find its news, opportunities, and conversations.</p>
+    <p th:if="${selectedSkill != null and selectedSkill.description != null}" th:text="${selectedSkill.description}">Skill description</p>
+
+    <div class="community-notice" th:if="${success != null}" th:text="${success}"></div>
+    <div class="community-notice community-notice--error" th:if="${error != null}" th:text="${error}"></div>
+
+    <section class="community-picker" th:if="${selectedSkill == null}" aria-label="Skill communities">
+        <a class="community-tile" th:each="skill : ${skills}"
+           th:href="@{/community(skillId=${skill.id})}">
+            <span class="community-category" th:text="${skill.category}">Category</span>
+            <h2 th:text="${skill.name}">Skill name</h2>
+            <p th:text="${skill.description != null ? skill.description : 'Explore updates and opportunities from this skill community.'}">Community description</p>
+            <span class="community-count" th:text="${postCounts[skill.id] + ' posts'}">0 posts</span>
+        </a>
+    </section>
+
+    <section th:if="${selectedSkill != null}" class="community-workspace">
+        <nav class="community-skill-nav" aria-label="Choose another skill community">
+            <a th:each="skill : ${skills}"
+               th:classappend="${skill.id == selectedSkill.id} ? ' is-active' : ''"
+               th:href="@{/community(skillId=${skill.id})}"
+               th:text="${skill.name}">Skill</a>
+        </nav>
+
+        <div class="community-columns">
+            <form class="community-compose" th:action="@{/community/posts}" method="post">
+                <input type="hidden" name="skillId" th:value="${selectedSkill.id}">
+                <h2>Start a conversation</h2>
+                <label>Post type
+                    <select name="postType" required>
+                        <option value="" disabled selected>Choose a category</option>
+                        <option th:each="postType : ${postTypes}"
+                                th:value="${postType.name()}"
+                                th:text="${postType.label}">News</option>
+                    </select>
+                </label>
+                <label>Headline
+                    <input name="title" maxlength="180" placeholder="A clear, useful headline" required>
+                </label>
+                <label>Details
+                    <textarea name="content" maxlength="5000" rows="6"
+                              placeholder="Share the context, dates, requirements, or update..." required></textarea>
+                </label>
+                <label>Link <span class="community-optional">optional</span>
+                    <input type="url" name="linkUrl" maxlength="1000" placeholder="https://example.com">
+                </label>
+                <button type="submit">Publish to this community</button>
+            </form>
+
+            <div class="community-feed">
+                <div class="community-feed-heading">
+                    <h2>Latest posts</h2>
+                    <span th:text="${posts.size() + ' updates'}">0 updates</span>
+                </div>
+                <article class="community-post" th:each="post : ${posts}">
+                    <div class="community-post-meta">
+                        <span class="community-category"
+                              th:classappend="${' community-category--' + #strings.toLowerCase(post.postType.name())}"
+                              th:text="${post.postType.label}">News</span>
+                        <time th:datetime="${post.createdAt}"
+                              th:text="${#temporals.format(post.createdAt, 'MMM d, yyyy · HH:mm')}">Date</time>
+                    </div>
+                    <h3 th:text="${post.title}">Post headline</h3>
+                    <p class="community-post-content" th:text="${post.content}">Post details</p>
+                    <a class="community-post-link" th:if="${post.linkUrl != null}"
+                       th:href="${post.linkUrl}" target="_blank" rel="noopener noreferrer">Open link</a>
+                    <p class="community-author">Posted by <strong th:text="${post.author.fullName}">Member</strong></p>
+                </article>
+                <p class="community-empty" th:if="${posts.isEmpty()}">No posts yet. Share the first useful update for this skill.</p>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>
